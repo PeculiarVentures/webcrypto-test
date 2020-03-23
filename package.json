@@ -73,6 +73,7 @@
     ],
     "reporter": [
       "text-summary",
+      "text-lcov",
       "html"
     ]
   },

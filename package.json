@@ -29,7 +29,11 @@
     "des",
     "pbkdf"
   ],
-  "author": "",
+  "author": "PeculiarVentures",
+  "contributors": [
+    "Miroshin Stepan<microshine@mail.ru>",
+    "Miroshin Roman<miroshin.ry@gmail.com>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/PeculiarVentures/webcrypto-test/issues"

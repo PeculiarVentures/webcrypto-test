@@ -1,7 +1,7 @@
 # webcrypto-test
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/webcrypto-test/master/LICENSE.md)
-[![CircleCI](https://circleci.com/gh/PeculiarVentures/webcrypto-test.svg?style=svg)](https://circleci.com/gh/PeculiarVentures/webcrypto-test)
+![Node.js CI](https://github.com/PeculiarVentures/webcrypto-test/workflows/Node.js%20CI/badge.svg)
 [![npm version](https://badge.fury.io/js/%40peculiar%2Fwebcrypto-test.svg)](https://badge.fury.io/js/%40peculiar%2Fwebcrypto-test)
 
 This module allows you to test cryptographic modules.

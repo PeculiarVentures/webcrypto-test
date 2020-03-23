@@ -14,7 +14,13 @@
     "prepare": "npm run build",
     "coverage": "nyc npm test",
     "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint --fix . --ext .ts"
+    "lint:fix": "eslint --fix . --ext .ts",
+    "prepub": "npm run lint && npm test && npm run rebuild",
+    "pub": "npm version patch && npm publish",
+    "postpub": "git push && git push --tags origin master",
+    "prepub:next": "npm run prepub",
+    "pub:next": "npm version prerelease --preid=next && npm publish --tag next",
+    "postpub:next": "git push"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,15 @@
+# OS
+.DS_Store
+
+# VS Code
+/.vscode
+
+# NPM
+/node_modules
+
+# Output
+/build
+
+# Coverage
+/.nyc_output
+/coverage

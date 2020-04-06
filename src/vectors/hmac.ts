@@ -39,23 +39,6 @@ export const HMAC: ITestParams = {
     ],
     sign: [
       {
-        name: "HMAC-SHA256 with length param which is less than hash size",
-        key: {
-          format: "raw",
-          data: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6]),
-          algorithm: {
-            name: "HMAC",
-            hash: "SHA-256",
-            length: 128,
-          } as HmacImportParams,
-          extractable: false,
-          keyUsages: ["sign", "verify"],
-        },
-        algorithm: { name: "HMAC" },
-        data: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]),
-        signature: Convert.FromBase64("9yMF9ReX1EhdBWTRjSR+AC21NA05H9W8vx0HZGVmgNc="),
-      },
-      {
         name: "HMAC-SHA256 without length param",
         key: {
           format: "raw",

@@ -111,7 +111,7 @@ export const AES256GCM: ITestParams = {
   actions: {
     generateKey: [
       {
-        algorithm: { name: "AES-CTR", length: 256 } as AesKeyGenParams,
+        algorithm: { name: "AES-GCM", length: 256 } as AesKeyGenParams,
         extractable: true,
         keyUsages: ["encrypt", "decrypt"],
       },

@@ -1,7 +1,7 @@
 # webcrypto-test
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/webcrypto-test/master/LICENSE.md)
-![Node.js CI](https://github.com/PeculiarVentures/webcrypto-test/workflows/Node.js%20CI/badge.svg)
+[![Node.js CI](https://github.com/PeculiarVentures/webcrypto-test/workflows/Node.js%20CI/badge.svg)](https://github.com/PeculiarVentures/webcrypto-test/actions?query=workflow%3A%22Node.js+CI%22)
 [![Coverage Status](https://coveralls.io/repos/github/PeculiarVentures/webcrypto-test/badge.svg?branch=master)](https://coveralls.io/github/PeculiarVentures/webcrypto-test?branch=master)
 [![npm version](https://badge.fury.io/js/%40peculiar%2Fwebcrypto-test.svg)](https://badge.fury.io/js/%40peculiar%2Fwebcrypto-test)
 

@@ -24,26 +24,36 @@ export const HMAC: ITestParams = {
       }),
       ...["SHA-1", "SHA-256", "SHA-384", "SHA-512"].map((hash) => {
         return {
-          name: hash,
+          name: `Fixed length:160 for ${hash}`,
           algorithm: {
             name: "HMAC",
             hash,
-            length: 128,
+            length: 160,
           },
           extractable: true,
           keyUsages: ["sign", "verify"],
+          assert: (key: CryptoKey) => {
+            const algorithm = key.algorithm as HmacKeyAlgorithm;
+            assert.equal(algorithm.length, 160);
+          }
         } as ITestGenerateKeyAction;
       }),
-      {
-        name: "length:160",
-        algorithm: {
-          name: "HMAC",
-          hash: "SHA-256",
-          length: 160,
-        },
-        extractable: true,
-        keyUsages: ["sign", "verify"],
-      } as ITestGenerateKeyAction,
+      ...["SHA-1"].map((hash) => {
+        return {
+          name: `Round length 164->160`,
+          algorithm: {
+            name: "HMAC",
+            hash,
+            length: 164,
+          },
+          extractable: true,
+          keyUsages: ["sign", "verify"],
+          assert: (key: CryptoKey) => {
+            const algorithm = key.algorithm as HmacKeyAlgorithm;
+            assert.equal(algorithm.length, 160);
+          }
+        } as ITestGenerateKeyAction;
+      }),
     ],
     sign: [
       {

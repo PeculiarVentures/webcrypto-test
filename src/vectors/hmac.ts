@@ -8,7 +8,7 @@ export const HMAC: ITestParams = {
     generateKey: [
       ...["SHA-1", "SHA-256", "SHA-384", "SHA-512"].map((hash) => {
         return {
-          name: "default length for SHA-1 algorithm",
+          name: `default length for ${hash} algorithm`,
           algorithm: {
             name: "HMAC",
             hash,

@@ -1,3 +1,4 @@
+import * as assert from "assert";
 import { Convert } from "pvtsutils";
 import { ITestParams, ITestGenerateKeyAction } from "../types";
 
@@ -5,15 +6,22 @@ export const HMAC: ITestParams = {
   name: "HMAC",
   actions: {
     generateKey: [
-      {
-        name: "default length",
-        algorithm: {
-          name: "HMAC",
-          hash: "SHA-256",
-        } as HmacKeyGenParams,
-        extractable: true,
-        keyUsages: ["sign", "verify"],
-      },
+      ...["SHA-1", "SHA-256", "SHA-384", "SHA-512"].map((hash) => {
+        return {
+          name: "default length for SHA-1 algorithm",
+          algorithm: {
+            name: "HMAC",
+            hash,
+          } as HmacKeyGenParams,
+          extractable: true,
+          keyUsages: ["sign", "verify"],
+          assert: (key: CryptoKey) => {
+            const algorithm = key.algorithm as HmacKeyAlgorithm;
+            // Chrome, Safari and Firefox return key with algorithm length 512 bits
+            assert.equal(algorithm.length, 512);
+          },
+        } as ITestGenerateKeyAction;
+      }),
       ...["SHA-1", "SHA-256", "SHA-384", "SHA-512"].map((hash) => {
         return {
           name: hash,

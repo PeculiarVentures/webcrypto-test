@@ -46,6 +46,7 @@ export interface ITestGenerateKeyAction extends ITestAction {
   algorithm: Algorithm;
   extractable: boolean;
   keyUsages: KeyUsage[];
+  assert?: (keys: CryptoKey | CryptoKeyPair) => void;
 }
 
 export interface IImportKeyParams {
@@ -54,6 +55,7 @@ export interface IImportKeyParams {
   algorithm: AlgorithmIdentifier;
   extractable: boolean;
   keyUsages: KeyUsage[];
+  assert?: (keys: CryptoKey) => void;
 }
 
 export interface IImportKeyPairParams {
@@ -89,6 +91,7 @@ export interface ITestDeriveKeyAction extends ITestAction {
   keyUsages: KeyUsage[];
   format: KeyFormat;
   keyData: BufferSource | JsonWebKey;
+  assert?: (keys: CryptoKey) => void;
 }
 
 export interface ITestWrapKeyAction extends ITestAction {

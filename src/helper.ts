@@ -76,6 +76,7 @@ function testGenerateKey(generateKey: types.ITestGenerateKeyAction[], crypto: Cr
           assert.equal(key.publicKey.algorithm.name, action.algorithm.name, "Algorithm name MUST be equal to incoming algorithm and in the same case");
           assert.equal(key.publicKey.extractable, true);
         }
+        action.assert?.(key);
       }, action, index);
     });
   });
@@ -97,6 +98,7 @@ function testImport(importFn: types.ITestImportAction[], crypto: Crypto) {
         } else {
           assert.equal(Buffer.from(exportedData as ArrayBuffer).toString("hex"), Buffer.from(action.data as ArrayBuffer).toString("hex"));
         }
+        action.assert?.(importedKey);
       }, action, index);
     });
   });
@@ -163,6 +165,7 @@ function testDeriveKey(deriveKey: types.ITestDeriveKeyAction[], crypto: Crypto) 
         } else {
           assert.equal(Convert.ToHex(keyData as ArrayBuffer), Convert.ToHex(action.keyData as ArrayBuffer));
         }
+        action.assert?.(derivedKey);
       }, action, index);
     });
   });

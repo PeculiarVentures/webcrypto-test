@@ -56,7 +56,7 @@ export const AES128ECB: ITestParams = {
         key: {
           format: "raw",
           algorithm: "AES-ECB",
-          data: Convert.FromBase64("AQIDBAUGBwgJAAECAwQFBg"),
+          data: Convert.FromBase64("AQIDBAUGBwgJAAECAwQFBg=="),
           extractable: true,
           keyUsages: ["wrapKey", "unwrapKey"],
         },

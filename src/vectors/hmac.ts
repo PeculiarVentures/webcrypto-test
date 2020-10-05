@@ -146,7 +146,7 @@ export const HMAC: ITestParams = {
       { // raw 128
         name: "raw 128",
         format: "raw",
-        data: Convert.FromBase64("AQIDBAUGBwgJAAECAwQFBg"),
+        data: Convert.FromBase64("AQIDBAUGBwgJAAECAwQFBg=="),
         algorithm: {
           name: "HMAC",
           hash: "SHA-512",

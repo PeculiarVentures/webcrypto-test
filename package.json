@@ -35,6 +35,11 @@
     "des",
     "pbkdf"
   ],
+  "files": [
+    "build/**/*.{ts,js}",
+    "README.md",
+    "LICENSE"
+  ],
   "author": "PeculiarVentures",
   "contributors": [
     "Miroshin Stepan<microshine@mail.ru>",

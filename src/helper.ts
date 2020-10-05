@@ -1,9 +1,10 @@
+
 import assert from "assert";
 import { Convert } from "pvtsutils";
 import * as types from "./types";
 
 /**
- * Получение ключей
+ * Gets keys
  * @param crypto
  * @param key
  */

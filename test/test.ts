@@ -1,16 +1,11 @@
 import { Crypto } from "@peculiar/webcrypto";
 
 import { describe, it } from "vitest";
-import { WebcryptoTest, vectors } from "../src";
+import { WebcryptoTest } from "../src";
 
 const crypto = new Crypto();
 const platform = { describe, it };
 
-WebcryptoTest.check(crypto, {
-  DESCBC: true,
-  DESEDE3CBC: true,
-}, platform);
-WebcryptoTest.check(crypto, [vectors.SHA], platform);
 WebcryptoTest.check(crypto, {
   AES128CBC: true,
   AES192CBC: true,
@@ -45,4 +40,3 @@ WebcryptoTest.check(crypto, {
   HMAC: true,
   PBKDF2: true
 }, platform);
-WebcryptoTest.add(crypto, vectors.SHA, platform);

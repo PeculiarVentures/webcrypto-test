@@ -1,11 +1,17 @@
 import { Crypto } from "@peculiar/webcrypto";
 
 import { describe, it } from "vitest";
-import { WebcryptoTest } from "../src";
+import { WebcryptoTest, vectors } from "../src";
 
 const crypto = new Crypto();
 const platform = { describe, it };
 
+// should run all tests, excluding DESCBC and DESEDE3CBC
+WebcryptoTest.check(crypto, {
+  DESCBC: true,
+  DESEDE3CBC: true,
+}, platform);
+// should run tests, excluding all listed
 WebcryptoTest.check(crypto, {
   AES128CBC: true,
   AES192CBC: true,
@@ -40,3 +46,7 @@ WebcryptoTest.check(crypto, {
   HMAC: true,
   PBKDF2: true
 }, platform);
+// should test SHA algorithms only
+WebcryptoTest.add(crypto, vectors.SHA, platform);
+// should test SHA algorithms only (from array)
+WebcryptoTest.check(crypto, [vectors.SHA], platform);

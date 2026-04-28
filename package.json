@@ -50,7 +50,6 @@
     "url": "https://github.com/PeculiarVentures/webcrypto-test/issues"
   },
   "homepage": "https://github.com/PeculiarVentures/webcrypto-test#readme",
-  "banner": "// Copyright (c) 2020, Peculiar Ventures, All rights reserved.",
   "dependencies": {
     "pvtsutils": "^1.3.6",
     "tslib": "^2.8.1"

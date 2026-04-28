@@ -1,5 +1,9 @@
 import { ITestParams } from "../../types";
 
+type AesCmacParams = Algorithm & {
+  length: number;
+};
+
 export const AES128CMAC: ITestParams = {
   name: "AES-128-CMAC",
   only: true,

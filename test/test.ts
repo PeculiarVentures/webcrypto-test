@@ -1,10 +1,16 @@
 import { Crypto } from "@peculiar/webcrypto";
-// eslint-disable-next-line import/named
+
+import { describe, it } from "vitest";
 import { WebcryptoTest, vectors } from "../src";
 
 const crypto = new Crypto();
-WebcryptoTest.check(crypto);
-WebcryptoTest.check(crypto, [vectors.SHA]);
+const platform = { describe, it };
+
+WebcryptoTest.check(crypto, {
+  DESCBC: true,
+  DESEDE3CBC: true,
+}, platform);
+WebcryptoTest.check(crypto, [vectors.SHA], platform);
 WebcryptoTest.check(crypto, {
   AES128CBC: true,
   AES192CBC: true,
@@ -38,5 +44,5 @@ WebcryptoTest.check(crypto, {
   HKDF: true,
   HMAC: true,
   PBKDF2: true
-});
-WebcryptoTest.add(crypto, vectors.SHA);
+}, platform);
+WebcryptoTest.add(crypto, vectors.SHA, platform);

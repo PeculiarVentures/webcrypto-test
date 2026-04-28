@@ -5,6 +5,17 @@ export interface ITestAction {
   error?: any;
 }
 
+export interface ITestCase {
+  (name: string, test: () => void | Promise<void>): void;
+  only?: ITestCase;
+  skip?: ITestCase;
+}
+
+export interface ITestPlatform {
+  describe: (name: string, suite: () => void) => void;
+  it: ITestCase;
+}
+
 export interface ITestVectorsExclude {
   [name: string]: boolean | undefined;
   AES128CBC?: boolean;

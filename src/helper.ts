@@ -1,7 +1,28 @@
-
 import assert from "assert";
 import { Convert } from "pvtsutils";
+import { createTestPlatform } from "./platform";
+import type { ITestPlatform } from "./types";
 import * as types from "./types";
+
+async function importKey(crypto: Crypto, key: types.IImportKeyParams) {
+  if (key.format === "jwk") {
+    return crypto.subtle.importKey(
+      key.format,
+      key.data as JsonWebKey,
+      key.algorithm,
+      key.extractable,
+      key.keyUsages,
+    );
+  }
+
+  return crypto.subtle.importKey(
+    key.format,
+    key.data as BufferSource,
+    key.algorithm,
+    key.extractable,
+    key.keyUsages,
+  );
+}
 
 /**
  * Gets keys
@@ -11,38 +32,20 @@ import * as types from "./types";
 async function getKeys(crypto: Crypto, key: types.IImportKeyParams | types.IImportKeyPairParams) {
   const keys = {} as CryptoKeyPair;
   if ("privateKey" in key) {
-    // @ts-ignore
-    keys.privateKey = await crypto.subtle.importKey(
-      key.privateKey.format,
-      key.privateKey.data,
-      key.privateKey.algorithm,
-      key.privateKey.extractable,
-      key.privateKey.keyUsages);
-    // @ts-ignore
-    keys.publicKey = await crypto.subtle.importKey(
-      key.publicKey.format,
-      key.publicKey.data,
-      key.publicKey.algorithm,
-      key.publicKey.extractable,
-      key.publicKey.keyUsages);
+    keys.privateKey = await importKey(crypto, key.privateKey);
+    keys.publicKey = await importKey(crypto, key.publicKey);
   } else {
-    // @ts-ignore
-    keys.privateKey = keys.publicKey = await crypto.subtle.importKey(
-      key.format,
-      key.data,
-      key.algorithm,
-      key.extractable,
-      key.keyUsages);
+    keys.privateKey = keys.publicKey = await importKey(crypto, key);
   }
   return keys;
 }
 
-async function wrapTest(promise: () => Promise<void>, action: types.ITestAction, index: number) {
+async function wrapTest(promise: () => Promise<void>, action: types.ITestAction, index: number, platform: ITestPlatform) {
   const test = action.skip
-    ? it.skip
+    ? platform.it.skip ?? platform.it
     : action.only
-      ? it.only
-      : it;
+      ? platform.it.only ?? platform.it
+      : platform.it;
 
   test(action.name || `#${index + 1}`, async () => {
     if (action.error) {
@@ -57,34 +60,36 @@ function isKeyPair(obj: any): obj is CryptoKeyPair {
   return obj.privateKey && obj.publicKey;
 }
 
-function testGenerateKey(generateKey: types.ITestGenerateKeyAction[], crypto: Crypto) {
-  context("Generate Key", () => {
+function testGenerateKey(generateKey: types.ITestGenerateKeyAction[], crypto: Crypto, platform: ITestPlatform) {
+  platform.describe("Generate Key", () => {
     generateKey.forEach((action, index) => {
       wrapTest(async () => {
         const algorithm = Object.assign({}, action.algorithm);
         algorithm.name = algorithm.name.toLowerCase();
-        const key = await crypto.subtle.generateKey(algorithm as any, action.extractable, action.keyUsages);
+        const key = await crypto.subtle.generateKey(algorithm as any, action.extractable, action.keyUsages) as CryptoKey | CryptoKeyPair;
         assert(key);
         if (!isKeyPair(key)) {
-          assert.equal(key.algorithm.name, action.algorithm.name, "Algorithm name MUST be equal to incoming algorithm and in the same case");
-          assert.equal(key.extractable, action.extractable);
-          assert.deepEqual(key.usages, action.keyUsages);
+          const generatedKey = key as CryptoKey;
+          assert.equal(generatedKey.algorithm.name, action.algorithm.name, "Algorithm name MUST be equal to incoming algorithm and in the same case");
+          assert.equal(generatedKey.extractable, action.extractable);
+          assert.deepEqual(generatedKey.usages, action.keyUsages);
         } else {
-          assert(key.privateKey);
-          assert.equal(key.privateKey.algorithm.name, action.algorithm.name, "Algorithm name MUST be equal to incoming algorithm and in the same case");
-          assert.equal(key.privateKey.extractable, action.extractable);
-          assert(key.publicKey);
-          assert.equal(key.publicKey.algorithm.name, action.algorithm.name, "Algorithm name MUST be equal to incoming algorithm and in the same case");
-          assert.equal(key.publicKey.extractable, true);
+          const generatedKey = key;
+          assert(generatedKey.privateKey);
+          assert.equal(generatedKey.privateKey.algorithm.name, action.algorithm.name, "Algorithm name MUST be equal to incoming algorithm and in the same case");
+          assert.equal(generatedKey.privateKey.extractable, action.extractable);
+          assert(generatedKey.publicKey);
+          assert.equal(generatedKey.publicKey.algorithm.name, action.algorithm.name, "Algorithm name MUST be equal to incoming algorithm and in the same case");
+          assert.equal(generatedKey.publicKey.extractable, true);
         }
         action.assert?.(key);
-      }, action, index);
+      }, action, index, platform);
     });
   });
 }
 
-function testImport(importFn: types.ITestImportAction[], crypto: Crypto) {
-  context("Import/Export", () => {
+function testImport(importFn: types.ITestImportAction[], crypto: Crypto, platform: ITestPlatform) {
+  platform.describe("Import/Export", () => {
     importFn.forEach((action, index) => {
       wrapTest(async () => {
         // @ts-ignore
@@ -100,13 +105,13 @@ function testImport(importFn: types.ITestImportAction[], crypto: Crypto) {
           assert.equal(Buffer.from(exportedData as ArrayBuffer).toString("hex"), Buffer.from(action.data as ArrayBuffer).toString("hex"));
         }
         action.assert?.(importedKey);
-      }, action, index);
+      }, action, index, platform);
     });
   });
 }
 
-function testSign(sign: types.ITestSignAction[], crypto: Crypto) {
-  context("Sign/Verify", () => {
+function testSign(sign: types.ITestSignAction[], crypto: Crypto, platform: ITestPlatform) {
+  platform.describe("Sign/Verify", () => {
     sign.forEach((action, index) => {
       wrapTest(async () => {
         // import keys
@@ -128,13 +133,13 @@ function testSign(sign: types.ITestSignAction[], crypto: Crypto) {
           assert.equal(Convert.ToHex(signature), Convert.ToHex(action.signature));
         }
         assert.equal(true, ok);
-      }, action, index);
+      }, action, index, platform);
     });
   });
 }
 
-function testDeriveBits(deriveBits: types.ITestDeriveBitsAction[], crypto: Crypto) {
-  context("Derive bits", () => {
+function testDeriveBits(deriveBits: types.ITestDeriveBitsAction[], crypto: Crypto, platform: ITestPlatform) {
+  platform.describe("Derive bits", () => {
     deriveBits.forEach((action, index) => {
       wrapTest(async () => {
         // import keys
@@ -144,13 +149,13 @@ function testDeriveBits(deriveBits: types.ITestDeriveBitsAction[], crypto: Crypt
         // derive bits
         const derivedBits = await crypto.subtle.deriveBits(algorithm, keys.privateKey, action.length);
         assert.equal(Convert.ToHex(derivedBits), Convert.ToHex(action.data));
-      }, action, index);
+      }, action, index, platform);
     });
   });
 }
 
-function testDeriveKey(deriveKey: types.ITestDeriveKeyAction[], crypto: Crypto) {
-  context("Derive key", () => {
+function testDeriveKey(deriveKey: types.ITestDeriveKeyAction[], crypto: Crypto, platform: ITestPlatform) {
+  platform.describe("Derive key", () => {
     deriveKey.forEach((action, index) => {
       wrapTest(async () => {
         // import keys
@@ -167,13 +172,13 @@ function testDeriveKey(deriveKey: types.ITestDeriveKeyAction[], crypto: Crypto) 
           assert.equal(Convert.ToHex(keyData as ArrayBuffer), Convert.ToHex(action.keyData as ArrayBuffer));
         }
         action.assert?.(derivedKey);
-      }, action, index);
+      }, action, index, platform);
     });
   });
 }
 
-function testWrap(wrapKey: types.ITestWrapKeyAction[], crypto: Crypto) {
-  context("Wrap/Unwrap key", () => {
+function testWrap(wrapKey: types.ITestWrapKeyAction[], crypto: Crypto, platform: ITestPlatform) {
+  platform.describe("Wrap/Unwrap key", () => {
     wrapKey.forEach((action, index) => {
       wrapTest(async () => {
         const wKey = (await getKeys(crypto, action.wKey)).privateKey;
@@ -184,25 +189,25 @@ function testWrap(wrapKey: types.ITestWrapKeyAction[], crypto: Crypto) {
         }
         const unwrappedKey = await crypto.subtle.unwrapKey(action.wKey.format, wrappedKey, key.privateKey, action.algorithm, action.wKey.algorithm, action.wKey.extractable, action.wKey.keyUsages);
         assert.deepEqual(unwrappedKey.algorithm, wKey.algorithm);
-      }, action, index);
+      }, action, index, platform);
     });
   });
 }
 
-function testDigest(digest: types.ITestDigestAction[], crypto: Crypto) {
-  context("Digest", () => {
+function testDigest(digest: types.ITestDigestAction[], crypto: Crypto, platform: ITestPlatform) {
+  platform.describe("Digest", () => {
     digest.forEach((action, index) => {
       wrapTest(async () => {
         // @ts-ignore
         const hash = await crypto.subtle.digest(action.algorithm, action.data);
         assert.equal(Convert.ToHex(hash), Convert.ToHex(action.hash));
-      }, action, index);
+      }, action, index, platform);
     });
   });
 }
 
-function testEncrypt(encrypt: types.ITestEncryptAction[], crypto: Crypto) {
-  context("Encrypt/Decrypt", () => {
+function testEncrypt(encrypt: types.ITestEncryptAction[], crypto: Crypto, platform: ITestPlatform) {
+  platform.describe("Encrypt/Decrypt", () => {
     encrypt.forEach((action, index) => {
       wrapTest(async () => {
         // import keys
@@ -220,46 +225,47 @@ function testEncrypt(encrypt: types.ITestEncryptAction[], crypto: Crypto) {
         // @ts-ignore
         dec = await crypto.subtle.decrypt(algorithm, decKey, action.encData);
         assert.equal(Convert.ToHex(dec), Convert.ToHex(action.data));
-      }, action, index);
+      }, action, index, platform);
     });
   });
 }
 
-export function testCrypto(crypto: Crypto, param: types.ITestParams) {
-  context(param.name, () => {
+export function testCrypto(crypto: Crypto, param: types.ITestParams, platform?: Partial<ITestPlatform>) {
+  const testPlatform = createTestPlatform(platform);
 
+  testPlatform.describe(param.name, () => {
     if (param.actions.generateKey) {
-      testGenerateKey(param.actions.generateKey, crypto);
+      testGenerateKey(param.actions.generateKey, crypto, testPlatform);
     }
 
     if (param.actions.encrypt) {
-      testEncrypt(param.actions.encrypt, crypto);
+      testEncrypt(param.actions.encrypt, crypto, testPlatform);
     }
 
     if (param.actions.import) {
-      testImport(param.actions.import, crypto);
+      testImport(param.actions.import, crypto, testPlatform);
     }
 
     if (param.actions.sign) {
-      testSign(param.actions.sign, crypto);
+      testSign(param.actions.sign, crypto, testPlatform);
     }
 
     if (param.actions.deriveBits) {
-      testDeriveBits(param.actions.deriveBits, crypto);
+      testDeriveBits(param.actions.deriveBits, crypto, testPlatform);
     }
 
     if (param.actions.deriveKey) {
-      testDeriveKey(param.actions.deriveKey, crypto);
+      testDeriveKey(param.actions.deriveKey, crypto, testPlatform);
     }
 
     const digest = param.actions.digest;
     if (digest) {
-      testDigest(digest, crypto);
+      testDigest(digest, crypto, testPlatform);
     }
 
     const wrapKey = param.actions.wrapKey;
     if (wrapKey) {
-      testWrap(wrapKey, crypto);
+      testWrap(wrapKey, crypto, testPlatform);
     }
   });
 }

@@ -7,6 +7,18 @@
 
 This module allows you to test cryptographic modules.
 
+It works with Vitest and Mocha. By default the SDK looks for `describe` and `it` on the active test runtime, and you can also pass an explicit platform adapter when you need to wire it manually.
+
+If your test runtime does not expose globals, pass a platform adapter:
+
+```js
+const { describe, it } = require("vitest");
+const { WebcryptoTest } = require("@peculiar/webcrypto-test");
+const { Crypto } = require("@peculiar/webcrypto");
+
+WebcryptoTest.check(new Crypto(), undefined, { describe, it });
+```
+
 ## Table Of Contents
 
 * [Installing](#installing)
@@ -18,29 +30,35 @@ This module allows you to test cryptographic modules.
 
 ## Installing
 
-```
+```shell
 npm install @peculiar/webcrypto-test
 ```
 
 ## Using
 
 ### Run all tests
+
 ```js
 const { WebcryptoTest } = require("@peculiar/webcrypto-test");
 const { Crypto } = require("@peculiar/webcrypto");
 
-WebcryptoTest.check( new Crypto());
+WebcryptoTest.check(new Crypto());
 ```
+
 ### Run selected tests
+
 ```js
 const { WebcryptoTest } = require("@peculiar/webcrypto-test");
-const  vectors = require("./vectors");
+const vectors = require("./vectors");
 const { Crypto } = require("@peculiar/webcrypto");
 
 WebcryptoTest.check(new Crypto(), [vectors.ECDSA, vectors.ECDH]);
 ```
+
 ### Disable tests
+
 To exclude vectors, you must set them to true
+
 ```js
 const { WebcryptoTest } = require("@peculiar/webcrypto-test");
 const { Crypto } = require("@peculiar/webcrypto");
@@ -50,7 +68,9 @@ WebcryptoTest.check(new Crypto(), {
   ECDH: true,
 });
 ```
+
 ### Run custom test
+
 ```js
 const { WebcryptoTest } = require("@peculiar/webcrypto-test");
 const { Crypto } = require("@peculiar/webcrypto");
